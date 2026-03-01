@@ -13,7 +13,7 @@ api_key = st.sidebar.text_input("Introduce tu Gemini API Key", type="password")
 
 if api_key:
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-pro')
+    genai.GenerativeModel('gemini-1.5-flash')
 
     st.write("---")
     st.write("### 🎙️ Dictado de Obra")
