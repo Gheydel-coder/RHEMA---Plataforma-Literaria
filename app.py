@@ -3,7 +3,7 @@ import streamlit as st
 # 1. Configuración de Identidad de la App
 st.set_page_config(page_title="RHEMA", page_icon="✒️", layout="wide")
 
-# 2. Estilos Visuales (Lomos de Libros y Diseño)
+# 2. Estilos Visuales
 st.markdown("""
     <style>
     .main { background-color: #f4f1ea; }
@@ -26,13 +26,19 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
+# --- INICIALIZACIÓN DE MEMORIA (Session State) ---
+if 'nombre_autor' not in st.session_state:
+    st.session_state.nombre_autor = "Gheydel Guerrero"
+if 'rango_autor' not in st.session_state:
+    st.session_state.rango_autor = "Escritor Nobel"
+if 'nombre_asistente' not in st.session_state:
+    st.session_state.nombre_asistente = "Elías"
+if 'identidad_guia' not in st.session_state:
+    st.session_state.identidad_guia = ""
+
 # --- NAVEGACIÓN LATERAL ---
 st.sidebar.title("RHEMA")
 menu = st.sidebar.radio("Ir a:", ["👤 Perfil de Usuario", "📚 Biblioteca Personal"])
-
-# --- VARIABLES DE ESTADO (Para mantener datos entre clics) ---
-if 'nombre_autor' not in st.session_state:
-    st.session_state.nombre_autor = "Gheydel Guerrero"
 
 # --- MÓDULO 1: PERFIL DE USUARIO 👤 ---
 if menu == "👤 Perfil de Usuario":
@@ -43,40 +49,36 @@ if menu == "👤 Perfil de Usuario":
     with col1:
         st.subheader("Datos del Autor")
         st.session_state.nombre_autor = st.text_input("Nombre o Seudónimo:", value=st.session_state.nombre_autor)
-        rango = st.selectbox("Nivel de Experiencia:", ["Escritor Nobel", "Maestro", "Autor Consagrado"])
+        st.session_state.rango_autor = st.selectbox("Nivel de Experiencia:", ["Escritor Nobel", "Autor Consagrado", "Maestro"], 
+                                                   index=["Escritor Nobel", "Autor Consagrado", "Maestro"].index(st.session_state.rango_autor))
         tinta = st.number_input("Créditos de Tinta:", value=500)
     
     with col2:
         st.subheader("Identidad del Asistente")
-        nombre_asistente = st.text_input("Nombre del Asistente:", value="Elías")
+        st.session_state.nombre_asistente = st.text_input("Nombre del Asistente:", value=st.session_state.nombre_asistente)
         st.info("El asistente integra: Mentoría Mística + Edición Técnica + Análisis Estructural.")
-        identidad_guia = st.text_area("Personificación del Asistente:", placeholder="Ej: Edgar Allan Poe...")
+        st.session_state.identidad_guia = st.text_area("Personificación del Asistente:", value=st.session_state.identidad_guia, placeholder="Ej: Edgar Allan Poe...")
     
     if st.button("Sellar Configuración"):
-        st.success("Identidad y Asistente vinculados correctamente.")
+        st.success(f"Identidad de {st.session_state.nombre_autor} y su guía {st.session_state.nombre_asistente} sellada.")
 
 # --- MÓDULO 2: BIBLIOTECA 📚 ---
 elif menu == "📚 Biblioteca Personal":
     st.title("📚 Mi Biblioteca")
     st.write(f"### Estante de: {st.session_state.nombre_autor}")
+    st.write(f"**Rango:** {st.session_state.rango_autor}")
     st.write("---")
     
-    # Representación visual de los libros (Lomos Verticales)
     col1, col2, col3, col4 = st.columns(4)
-    
     with col1:
         st.markdown('<div class="lomo-terminado">EL SECRETO DE DENDERA<br><span class="sello-lacre">🔴</span></div>', unsafe_allow_html=True)
         st.caption("Estado: Concluido")
-
     with col2:
         st.markdown('<div class="lomo-proceso">EL ORINOCO Y EL ONIRONAUTA</div>', unsafe_allow_html=True)
         st.caption("Estado: En proceso")
-        
     with col3:
         st.markdown('<div class="lomo-proceso">NUEVA OBRA</div>', unsafe_allow_html=True)
         st.caption("Estado: En proceso")
-
     with col4:
-        st.write(" ")
         if st.button("➕ Crear Nueva Obra"):
             st.toast("Abriendo el Tintero...")
