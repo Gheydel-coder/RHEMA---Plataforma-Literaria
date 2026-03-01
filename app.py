@@ -1,36 +1,47 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Configuración con la nueva identidad
-st.set_page_config(page_title="RHEMA", page_icon="✍️")
+# Configuración de página
+st.set_page_config(page_title="RHEMA - Perfil", page_icon="👤", layout="wide")
 
-st.title("✍️ RHEMA: El Verbo Creador")
-st.markdown("### *Donde la voz del autor se convierte en legado*")
+# Estilo visual de la interfaz
+st.markdown("""
+    <style>
+    .main { background-color: #0e1117; color: #e0e0e0; }
+    .stButton>button { background-color: #1e3a8a; color: white; border-radius: 10px; }
+    </style>
+    """, unsafe_allow_html=True)
 
-# Barra lateral para la llave de poder
-st.sidebar.header("Configuración de Soberanía")
-api_key = st.sidebar.text_input("Introduce tu Gemini API Key", type="password")
+# --- BARRA LATERAL (Acceso y Seguridad) ---
+st.sidebar.title("🔐 Acceso")
+api_key = st.sidebar.text_input("Gemini API Key", type="password")
 
-if api_key:
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+# --- CUERPO PRINCIPAL: PERFIL DE USUARIO 👤 ---
+st.title("👤 Perfil de Soberanía")
+st.info("Configura tu identidad y la de tu Asistente (Elias).")
 
+col1, col2 = st.columns(2)
+
+with col1:
+    st.subheader("Datos del Autor")
+    nombre = st.text_input("Nombre del Maestro/Autor:", value="Gheydel Guerrero")
+    rango = st.selectbox("Rango Literario:", ["Novicio", "Escriba", "Maestro", "Soberano"])
+    tinta = st.number_input("Créditos de Tinta:", value=500)
+    id_usuario = "ID-001" 
+
+with col2:
+    st.subheader("Configuración del Asistente")
+    tipo_asistente = st.selectbox(
+        "Esencia del Guía:",
+        ["Autor Clásico (ej. Cervantes, Poe)", "Personaje Literario/Cine", "Avatar Propio"]
+    )
+    nombre_guia = st.text_input("Nombre de tu Guía (ej. Elias, Quijote, Cuervo):")
+    
     st.write("---")
-    st.write("### 🎙️ Dictado de Obra")
-    texto_original = st.text_area("Vierte aquí tu palabra:", placeholder="Ejemplo: El nacimiento del amor en primavera...", height=200)
+    st.write("**Personalidad del Asistente (La Amalgama):**")
+    st.caption("Tu guía será una mezcla de la esencia elegida + Mentor Místico + Editor Técnico.")
+    descripcion_avatar = st.text_area("Si elegiste Avatar Propio, descríbelo aquí:")
 
-    if st.button("Transformar en Rhema"):
-        if texto_original:
-            with st.spinner('Procesando el Verbo...'):
-                prompt = f"Actúa como un editor literario místico y profundo. Toma el siguiente texto y elévalo a una narrativa épica, manteniendo la esencia del autor pero dándole la fuerza de una obra clásica: {texto_original}"
-                response = model.generate_content(prompt)
-                
-                st.write("### ✨ El Verbo Transformado")
-                st.info(response.text)
-                
-                # Opción para guardar
-                st.download_button("Descargar Fragmento", response.text, file_name="rhema_fragmento.txt")
-        else:
-            st.warning("El silencio no crea. Por favor, escribe o dicta algo.")
-else:
-    st.info("Para activar el poder de RHEMA, introduce tu API Key en la barra lateral.")
+# --- GUARDAR CONFIGURACIÓN ---
+if st.button("Sellar Identidad"):
+    st.success(f"Identidad Sellada. Bienvenido, Maestro {nombre}. Tu guía {nombre_guia} está listo.")
