@@ -1,56 +1,56 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Configuración básica de la aplicación
-st.set_page_config(page_title="RHEMA - Perfil de Usuario", page_icon="👤", layout="wide")
+# Configuración técnica de la App
+st.set_page_config(page_title="RHEMA - Perfil", page_icon="👤", layout="wide")
 
-# Estética limpia y profesional
+# Interfaz profesional y limpia
 st.markdown("""
     <style>
-    .main { background-color: #f8f9fa; color: #212529; }
-    .stButton>button { width: 100%; border-radius: 5px; height: 3em; background-color: #007bff; color: white; }
+    .main { background-color: #f8f9fa; }
+    .stButton>button { width: 100%; background-color: #1a1c23; color: white; height: 3em; border-radius: 8px; }
+    .stTextInput>div>div>input { background-color: #ffffff; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- ACCESO ---
-st.sidebar.title("Configuración")
-api_key = st.sidebar.text_input("Gemini API Key", type="password", help="Introduce tu clave para activar el asistente.")
+# --- CONFIGURACIÓN DE ACCESO ---
+st.sidebar.title("🛡️ Acceso")
+api_key = st.sidebar.text_input("Gemini API Key", type="password")
 
 # --- PERFIL DE USUARIO ---
 st.title("👤 Perfil de Usuario")
-st.write("Gestiona tu información de autor y personaliza tu asistente literario.")
 st.write("---")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("Información del Autor")
+    st.subheader("Datos del Autor")
     nombre = st.text_input("Nombre o Seudónimo:", value="Gheydel Guerrero")
-    rango = st.selectbox("Nivel de Experiencia:", ["Principiante", "Escritor", "Maestro", "Autor Consagrado"])
-    tinta = st.number_input("Créditos disponibles (Tinta):", value=500)
-    st.caption("ID de Usuario: RHEMA-1001")
+    rango = st.selectbox("Nivel:", ["Principiante", "Escritor", "Maestro", "Autor Consagrado"])
+    tinta = st.number_input("Créditos de Tinta:", value=500)
+    st.caption("ID de Sistema: RHEMA-1001")
 
 with col2:
-    st.subheader("Personalización del Asistente (IA)")
-    nombre_asistente = st.text_input("Nombre de tu Asistente:", placeholder="Ej: Elías, Mentor, Editor...")
+    st.subheader("Identidad del Asistente")
+    st.write("El asistente integrará Mentoría Mística, Edición Técnica y Análisis Estructural.")
     
-    tipo_voz = st.selectbox(
-        "Base del Estilo:",
-        ["Autor Clásico", "Personaje Literario", "Avatar Personalizado"]
+    nombre_asistente = st.text_input("Nombre del Asistente:", value="Elías")
+    
+    tipo_base = st.selectbox(
+        "Personificación base:",
+        ["Autor", "Personaje Literario / Cine", "Avatar de Autoría Propia"]
     )
     
-    st.write("**Modo de Intervención:**")
-    enfoque = st.multiselect(
-        "Elige las funciones del asistente:",
-        ["Corrección Técnica/Ortográfica", "Mentoría Mística/Creativa", "Análisis Estructural", "Edición de Estilo"],
-        default=["Corrección Técnica/Ortográfica"]
+    # Campo obligatorio para definir la "piel" del asistente
+    referencia_identidad = st.text_area(
+        "Describe la identidad del asistente:", 
+        placeholder="Ejemplo: Edgar Allan Poe. Quiero que hable con su estilo melancólico, pero que sea un editor técnico implacable."
     )
-    
-    descripcion_guia = st.text_area("Instrucciones específicas para el asistente:", placeholder="Ej: Quiero que seas asertivo y uses un lenguaje elevado...")
 
 st.write("---")
-if st.button("Guardar Cambios"):
+
+if st.button("Sellar Configuración"):
     if api_key:
-        st.success(f"Configuración guardada. Bienvenido, {nombre}. Tu asistente '{nombre_asistente}' está configurado.")
+        st.success(f"Configuración sellada. Maestro {nombre}, su asistente {nombre_asistente} está activo.")
     else:
-        st.warning("Por favor, introduce tu API Key en la barra lateral para validar los cambios.")
+        st.error("Se requiere la API Key para validar la conexión con el asistente.")
