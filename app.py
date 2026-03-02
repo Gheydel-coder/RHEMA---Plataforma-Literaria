@@ -1,72 +1,92 @@
 import streamlit as st
 import google.generativeai as genai
 
-# 1. Configuración de Identidad
-st.set_page_config(page_title="RHEMA - Taller", page_icon="🖋️", layout="wide")
+# 1. Configuración de Identidad de la App
+st.set_page_config(page_title="RHEMA", page_icon="✒️", layout="wide")
 
-# 2. Inicialización de Memoria (Session State)
-if 'nombre_autor' not in st.session_state: st.session_state['nombre_autor'] = "Gheydel Guerrero"
-if 'nombre_asistente' not in st.session_state: st.session_state['nombre_asistente'] = "Elías"
-if 'identidad_guia' not in st.session_state: st.session_state['identidad_guia'] = "Mentor literario técnico"
-if 'api_key' not in st.session_state: st.session_state['api_key'] = ""
-if 'resultado_ia' not in st.session_state: st.session_state['resultado_ia'] = ""
+# 2. Estilos Visuales
+st.markdown("""
+    <style>
+    .main { background-color: #f4f1ea; }
+    .stSidebar { background-color: #1a1c23; color: white; }
+    .resultado-caja {
+        background-color: #ffffff; padding: 20px; border-radius: 10px;
+        border: 1px solid #ddd; color: #333; min-height: 400px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- MEMORIA BLINDADA (Inicialización) ---
+# Esto evita el AttributeError al asegurar que todas las llaves existan
+variables = {
+    'nombre_autor': "Gheydel Guerrero",
+    'rango_autor': "Maestro",
+    'nombre_asistente': "Elías",
+    'identidad_guia': "Mentor literario técnico y místico",
+    'api_key': "",
+    'resultado_ia': ""
+}
+
+for key, value in variables.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
 
 # --- NAVEGACIÓN ---
+st.sidebar.title("RHEMA")
 menu = st.sidebar.radio("Navegación:", ["👤 Perfil", "📚 Biblioteca", "🖋️ Taller"])
 
-# --- MÓDULO 1: PERFIL (Donde pones la Llave) ---
+# --- MÓDULO 1: PERFIL ---
 if menu == "👤 Perfil":
-    st.title("👤 Configuración")
-    st.text_input("Autor:", key='nombre_autor')
-    st.text_input("Asistente:", key='nombre_asistente')
-    st.text_area("Personalidad del Guía:", key='identidad_guia')
-    st.password_input("Introduce tu Gemini API Key:", key='api_key')
-    st.info("Pega tu llave arriba para activar el Taller.")
+    st.title("👤 Configuración de Soberanía")
+    st.write("---")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.session_state.nombre_autor = st.text_input("Autor:", value=st.session_state.nombre_autor)
+        st.session_state.rango_autor = st.selectbox("Rango:", ["Escritor Nobel", "Autor Consagrado", "Maestro"], 
+                                                   index=["Escritor Nobel", "Autor Consagrado", "Maestro"].index(st.session_state.rango_autor))
+        st.session_state.api_key = st.text_input("Google API Key:", value=st.session_state.api_key, type="password")
+        
+    with col2:
+        st.session_state.nombre_asistente = st.text_input("Asistente:", value=st.session_state.nombre_asistente)
+        st.session_state.identidad_guia = st.text_area("Identidad del Guía:", value=st.session_state.identidad_guia, height=150)
+    
+    if st.button("Sellar"):
+        st.success("Configuración guardada.")
 
 # --- MÓDULO 2: BIBLIOTECA ---
 elif menu == "📚 Biblioteca":
-    st.title("📚 Biblioteca")
-    st.write(f"Estante de {st.session_state.nombre_autor}")
-    st.info("Módulo de archivos en construcción...")
+    st.title("📚 Mi Biblioteca")
+    st.write(f"### Estante de: {st.session_state.nombre_autor}")
+    st.info("Aquí se almacenarán tus obras terminadas.")
 
-# --- MÓDULO 3: TALLER (EL TINTERO ACTIVO) ---
+# --- MÓDULO 3: TALLER (IA Activa) ---
 elif menu == "🖋️ Taller":
-    st.title("🖋️ El Taller de Escritura")
+    st.title("🖋️ El Taller Literario")
     
     if not st.session_state.api_key:
-        st.error("⚠️ Falta la API Key. Ve al Perfil y agrégala.")
+        st.error("⚠️ Falta la API Key en el Perfil.")
     else:
-        # Configurar la IA con tu llave
-        genai.configure(api_key=st.session_state.api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
-
-        col1, col2 = st.columns(2)
+        col_in, col_out = st.columns(2)
         
-        with col1:
-            st.subheader("Borrador / Dictado")
-            texto_usuario = st.text_area("Escribe o pega aquí tu idea:", height=400, placeholder="Escribe el germen de tu obra...")
+        with col_in:
+            st.subheader("Borrador")
+            texto_usuario = st.text_area("Escribe aquí:", height=300, placeholder="Escribe el germen de tu idea...")
             
-            if st.button("✨ Transformar Obra"):
+            if st.button("✨ Transformar con RHEMA"):
                 if texto_usuario:
-                    with st.spinner(f"{st.session_state.nombre_asistente} está trabajando..."):
-                        # El "Prompt": Le decimos a la IA quién debe ser
-                        prompt = f"""
-                        Actúa como {st.session_state.nombre_asistente}. 
-                        Tu personalidad es: {st.session_state.identidad_guia}.
-                        Tu misión es tomar el siguiente texto y elevar su calidad literaria, 
-                        manteniendo el alma del autor pero aplicando rigor técnico y belleza mística:
+                    try:
+                        genai.configure(api_key=st.session_state.api_key)
+                        model = genai.GenerativeModel('gemini-1.5-flash')
                         
-                        Texto del autor: {texto_usuario}
-                        """
-                        response = model.generate_content(prompt)
-                        st.session_state.resultado_ia = response.text
-                else:
-                    st.warning("Escribe algo primero para que pueda ayudarte.")
-
-        with col2:
-            st.subheader("Resultado RHEMA")
-            st.markdown(f'<div style="background-color: #ffffff; padding: 20px; border-radius: 10px; border: 1px solid #ddd; color: #333; min-height: 400px;">{st.session_state.resultado_ia}</div>', unsafe_allow_html=True)
-            
-            if st.session_state.resultado_ia:
-                if st.button("💾 Enviar a Biblioteca"):
-                    st.success("Obra sellada y enviada al estante.")
+                        prompt = f"Como {st.session_state.nombre_asistente} ({st.session_state.identidad_guia}), reescribe esto con excelencia literaria: {texto_usuario}"
+                        
+                        with st.spinner("Procesando..."):
+                            response = model.generate_content(prompt)
+                            st.session_state.resultado_ia = response.text
+                    except Exception as e:
+                        st.error(f"Error de conexión: {e}")
+        
+        with col_out:
+            st.subheader("Resultado")
+            st.markdown(f'<div class="resultado-caja">{st.session_state.resultado_ia}</div>', unsafe_allow_html=True)
