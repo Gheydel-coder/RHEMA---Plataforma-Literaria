@@ -26,15 +26,16 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- INICIALIZACIÓN DE MEMORIA (Para que no se borre nada) ---
+# --- INICIALIZACIÓN DE MEMORIA (Session State) ---
+# Usamos esto para que los datos persistan SIEMPRE
 if 'nombre_autor' not in st.session_state:
-    st.session_state.nombre_autor = "Gheydel Guerrero"
+    st.session_state['nombre_autor'] = "Gheydel Guerrero"
 if 'rango_autor' not in st.session_state:
-    st.session_state.rango_autor = "Maestro"
+    st.session_state['rango_autor'] = "Maestro"
 if 'nombre_asistente' not in st.session_state:
-    st.session_state.nombre_asistente = "Elías"
+    st.session_state['nombre_asistente'] = "Elías"
 if 'identidad_guia' not in st.session_state:
-    st.session_state.identidad_guia = ""
+    st.session_state['identidad_guia'] = ""
 
 # --- NAVEGACIÓN LATERAL ---
 st.sidebar.title("RHEMA")
@@ -48,20 +49,19 @@ if menu == "👤 Perfil de Usuario":
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Datos del Autor")
-        st.session_state.nombre_autor = st.text_input("Nombre o Seudónimo:", value=st.session_state.nombre_autor)
+        # El parámetro 'key' asegura que el dato se guarde directamente en session_state
+        st.text_input("Nombre o Seudónimo:", key='nombre_autor')
         
-        # Sincronizar el selectbox con la memoria
         opciones_rango = ["Escritor Nobel", "Autor Consagrado", "Maestro"]
-        index_rango = opciones_rango.index(st.session_state.rango_autor)
-        st.session_state.rango_autor = st.selectbox("Nivel de Experiencia:", opciones_rango, index=index_rango)
+        st.selectbox("Nivel de Experiencia:", opciones_rango, key='rango_autor')
         
-        tinta = st.number_input("Créditos de Tinta:", value=500)
+        st.number_input("Créditos de Tinta:", value=500, key='tinta_usuario')
     
     with col2:
         st.subheader("Configuración del Asistente")
-        st.session_state.nombre_asistente = st.text_input("Nombre del Asistente:", value=st.session_state.nombre_asistente)
+        st.text_input("Nombre del Asistente:", key='nombre_asistente')
         st.info("El asistente integra: Mentoría Mística + Edición Técnica + Análisis Estructural.")
-        st.session_state.identidad_guia = st.text_area("Personificación del Asistente:", value=st.session_state.identidad_guia, placeholder="Ej: Edgar Allan Poe. Quiero que sea asertivo...")
+        st.text_area("Personificación del Asistente:", key='identidad_guia', placeholder="Ej: Edgar Allan Poe...")
     
     if st.button("Sellar Configuración"):
         st.success(f"Configuración guardada para {st.session_state.nombre_autor}.")
@@ -69,6 +69,7 @@ if menu == "👤 Perfil de Usuario":
 # --- MÓDULO 2: BIBLIOTECA 📚 ---
 elif menu == "📚 Biblioteca Personal":
     st.title("📚 Mi Biblioteca")
+    # Aquí llamamos directamente a la memoria
     st.write(f"### Estante de: {st.session_state.nombre_autor}")
     st.write(f"**Rango:** {st.session_state.rango_autor}")
     st.write("---")
