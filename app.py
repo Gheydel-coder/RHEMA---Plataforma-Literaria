@@ -5,7 +5,6 @@ import google.generativeai as genai
 st.set_page_config(page_title="RHEMA", page_icon="✒️", layout="wide")
 
 # 2. RED DE SEGURIDAD (Inicialización de Memoria)
-# Esto elimina el AttributeError de raíz
 if 'nombre_autor' not in st.session_state: st.session_state['nombre_autor'] = "Gheydel Guerrero"
 if 'rango_autor' not in st.session_state: st.session_state['rango_autor'] = "Maestro"
 if 'nombre_asistente' not in st.session_state: st.session_state['nombre_asistente'] = "Elías"
@@ -39,11 +38,9 @@ elif menu == "🖋️ Taller":
     if not st.session_state['api_key']:
         st.warning("⚠️ Falta la API Key en el Perfil.")
     else:
-        # Configuración de IA
         try:
             genai.configure(api_key=st.session_state['api_key'])
             model = genai.GenerativeModel('gemini-1.5-flash')
-            
             texto_usuario = st.text_area("Dicta o escribe aquí:", height=300)
             if st.button("✨ Elevar Texto"):
                 if texto_usuario:
@@ -51,9 +48,6 @@ elif menu == "🖋️ Taller":
                         p = f"Actúa como {st.session_state['nombre_asistente']}. {st.session_state['identidad_guia']}. Mejora esto: {texto_usuario}"
                         response = model.generate_content(p)
                         st.session_state['resultado_ia'] = response.text
-                else:
-                    st.error("Escribe algo primero.")
-            
             if st.session_state['resultado_ia']:
                 st.subheader("Resultado:")
                 st.write(st.session_state['resultado_ia'])
